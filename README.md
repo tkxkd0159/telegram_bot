@@ -32,3 +32,16 @@ The bot logic triggered by the server.py that interacts with the Unsplash API.
 
 Will make your app to be set up as a custom app by Glitch, allowing to install scripts.
 In our case, we will install Python3 and spin a process that will re-run when changes are made to the *.py source files.
+
+## Add Darknet  and  Download pre-trained model weights
+```
+# Open Full page console in glitch
+cd .data
+git clone https://github.com/pjreddie/darknet.git
+cd darknet
+make
+
+# execute in the ./darkent directory
+wget https://pjreddie.com/media/files/darknet19.weights
+wget https://pjreddie.com/media/files/yolov3-tiny.weights
+```
