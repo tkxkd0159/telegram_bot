@@ -11,17 +11,46 @@ from os import environ
 bot = telebot.TeleBot(environ['TELEGRAM_TOKEN'])
 
 bot_text = '''
-* 멀티캠퍼스 5조 *
-미완성 Detector & Classifier
-분석을 원하는 사진을 올려주세요
+Get your picture with unsplash
+the command is :
+"random", "4k", "topic"
+
+or
+
+Upload picture which you want to analysis
 '''
-# store files in /tmp so storage does not get complete
-result_storage_path = 'tmp'
 
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.send_message(message.chat.id, bot_text)
+    
+   
+# ----------- IMAGE PICK CODE START--------------#
+# send random unsplash picture
+@bot.message_handler(commands=['random'])
+def send_random_pic(message):
+  response = requests.get('https://source.unsplash.com/random')
+  bot.send_photo(message.chat.id, response.content)
+    
+# send random 4k unsplash picture
+@bot.message_handler(commands=['4k'])
+def send_random_pic(message):
+  response = requests.get('https://source.unsplash.com/random/4096x2160')
+  bot.send_photo(message.chat.id, response.content)  
+  bot.send_document(message.chat.id, response.content,caption='rename_to_jpeg')
+
+# send picture from topic  
+@bot.message_handler(commands=['topic'])
+def handle_text(message):
+    cid = message.chat.id
+    msgTopics = bot.send_message(cid, 'Type the topic(s), coma separated:')
+    bot.register_next_step_handler(msgTopics , step_Set_Topics)
+
+# ----------- IMAGE RECOGNITION CODE START--------------#
+
+# store files in /tmp so storage does not get complete
+result_storage_path = 'tmp'
 
 
 @bot.message_handler(content_types=['photo'])
@@ -51,6 +80,13 @@ def handle(message):
 
 
 # ----------- Helper functions ---------------
+def step_Set_Topics(message):
+    cid = message.chat.id
+    topics = message.text
+    response = requests.get("https://source.unsplash.com/random?{0}".format(topics))
+    bot.send_photo(message.chat.id, response.content)
+
+
 
 def log_request(message):
     file = open('.data/logs.txt', 'a')  # append to file
